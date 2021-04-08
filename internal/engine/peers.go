@@ -22,14 +22,60 @@
 
 package engine
 
+import (
+	"fmt"
+	"sync"
+)
+
 // Peer represents a connected remote node.
 type Peer struct {
 	addr    uint32
+	hash    string
 	version string
+}
+
+// PeerStore holds active Peers, managing them in a concurrency safe
+// manner and providing lookup via various functions
+type PeerStore struct {
+	mtx       sync.RWMutex
+	peers     map[string]*Peer // hash -> peer
+	connected map[string]int   // (ip|ip:port) -> count
+	current   []*Peer
+	incoming  int
+	outgoing  int
+}
+
+// NewPeerStore initializes a new peer store
+func NewPeerStore() *PeerStore {
+	ps := new(PeerStore)
+	ps.peers = make(map[string]*Peer)
+	ps.connected = make(map[string]int)
+	return ps
+}
+
+// Add a peer to be managed. Returns an error if a peer with that hash
+// is already tracked
+func (ps *PeerStore) Add(p *Peer) error {
+	if p == nil {
+		return fmt.Errorf("trying to add nil")
+	}
+	ps.mtx.Lock()
+	defer ps.mtx.Unlock()
+
+	if _, ok := ps.peers[p.hash]; ok {
+		return fmt.Errorf("peer already exists")
+	}
+	ps.current = nil
+	ps.peers[p.hash] = p
+	ps.connected[fmt.Sprint(p.addr)]++
+	ps.connected[p.version]++
+
+	return nil
 }
 
 // Get list of all peers available on the Network
 func GetPeers() []Peer {
 	// do network discovery
+
 	return []Peer{}
 }
