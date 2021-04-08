@@ -22,30 +22,14 @@
 
 package engine
 
-import (
-	"context"
-	"fmt"
-	"os"
-	"runtime"
-	"strings"
-	"sync"
-	"time"
-
-	"github.com/Factom-Asset-Tokens/factom"
-	"github.com/Factom-Asset-Tokens/fatd/internal/flag"
-	_log "github.com/Factom-Asset-Tokens/fatd/internal/log"
-	"golang.org/x/sync/errgroup"
-)
-
-var log _log.Log
-
 // Peer represents a connected remote node.
 type Peer struct {
-	addr uint32
+	addr    uint32
 	version string
 }
 
 // Get list of all peers available on the Network
 func GetPeers() []Peer {
 	// do network discovery
+	return []Peer{}
 }
